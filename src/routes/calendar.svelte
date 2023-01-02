@@ -1,5 +1,7 @@
 <script lang="ts">
     import { onMount } from "svelte";
+    //@ts-ignore
+    import { selectedDay } from "$lib/stores";
 
     let locale: string, formatter: Intl.DateTimeFormat;
     onMount(() => {
@@ -12,7 +14,7 @@
     const daysInMonth = (month: number) => new Date(new Date().getFullYear(), month + 1, 0).getDate();
 
     function click(e: MouseEvent) {
-        console.log(e);
+        selectedDay.set({ month: Number((e.target as HTMLElement).dataset.month), date: Number((e.target as HTMLElement).dataset.date) });
     }
 </script>
 
@@ -29,8 +31,8 @@
             <p class="overflow-hidden">{formatter?.format(date) ?? ""}</p>
             {#each Array(daysInMonth(monthIdx)) as _, dayIdx}
                 {@const curr = new Date(new Date().getFullYear(), monthIdx, dayIdx + 1)}
-                {@const colour = isToday(curr) ? "bg-red-500" : isPastDay(curr) ? "bg-blue-500" : "bg-slate-500"}
-                <div on:click={click} on:keypress class="self-center w-4 h-4 rounded-full cursor-pointer {colour}" />
+                {@const colour = isToday(curr) ? "bg-red-500" : isPastDay(curr) ? "bg-green-500" : "bg-slate-500"}
+                <div on:click={click} on:keypress data-month={monthIdx} data-date={dayIdx} class="self-center w-4 h-4 rounded-full cursor-pointer {colour}" />
             {/each}
         </div>
     {/each}

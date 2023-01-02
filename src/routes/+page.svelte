@@ -1,15 +1,9 @@
 <script lang="ts">
-	import Days from "./days.svelte";
+	import Calendar from "./calendar.svelte";
+	import DayModal from "./daymodal.svelte";
 </script>
 
-<main>
-	<Days />
+<main class="grid place-items-center">
+	<Calendar />
+	<DayModal />
 </main>
-
-<style>
-	main {
-		display: grid;
-		place-items: center;
-		height: 100%;
-	}
-</style>

@@ -1,37 +1,43 @@
-<div id="parent">
-    <div id="day-numbers">
+<script lang="ts">
+    import { onMount } from "svelte";
+
+    let locale: string, formatter: Intl.DateTimeFormat;
+    onMount(() => {
+        locale = window.navigator.languages ? window.navigator.languages[0] : window.navigator.language;
+        formatter = new Intl.DateTimeFormat(locale, { month: "short" });
+    });
+
+    const isPastDay = (date: Date) => date < new Date();
+    const isToday = (date: Date) => date.toDateString() === new Date().toDateString();
+    const daysInMonth = (month: number) => new Date(new Date().getFullYear(), month + 1, 0).getDate();
+
+    function click(e: MouseEvent) {
+        console.log(e);
+    }
+</script>
+
+<div class="grid grid-cols-[repeat(13,1fr)] h-full w-2/3">
+    <div class="grid justify-items-center items-center grid-rows-[repeat(32,var(--y-gap))]">
         <p>&nbsp;</p>
         {#each Array(31) as _, idx}
             <p>{idx + 1}</p>
         {/each}
     </div>
-    {#each Array(12) as _, idx}
-        <div class="month">
-            <p class="month">month {idx + 1}</p>
-            <!-- {#each Array(Math.floor(Math.random() * (31 - 10 + 1) + 10)) as _, idx} -->
-            {#each Array(31) as _, idx}
-                <div class="day w-4 h-4 rounded-full bg-blue-500"></div>
+    {#each Array(12) as _, monthIdx}
+        {@const date = new Date(new Date().getFullYear(), monthIdx, 1)}
+        <div class="grid justify-items-center grid-rows-[repeat(32,var(--y-gap))]">
+            <p class="overflow-hidden">{formatter?.format(date) ?? ""}</p>
+            {#each Array(daysInMonth(monthIdx)) as _, dayIdx}
+                {@const curr = new Date(new Date().getFullYear(), monthIdx, dayIdx + 1)}
+                {@const colour = isToday(curr) ? "bg-red-500" : isPastDay(curr) ? "bg-blue-500" : "bg-slate-500"}
+                <div on:click={click} on:keypress class="self-center w-4 h-4 rounded-full cursor-pointer {colour}" />
             {/each}
         </div>
     {/each}
 </div>
 
 <style>
-    #parent {
-        display: grid;
-        grid-template-columns: repeat(13, 1fr);
-        /* grid-template-rows: [months-start] 1rem [months-end] auto [end];
-        grid-template-columns: [dates-start] 1rem [dates-end] auto [end]; */
-    }
-
-    .month {
-        display: grid;
-        justify-items: center;
-    }
-
-    #day-numbers {
-        display: grid;
-        justify-items: center;
-        grid-template-rows: repeat(31, 2rem);
+    :root {
+        --y-gap: calc(100% / 32);
     }
 </style>

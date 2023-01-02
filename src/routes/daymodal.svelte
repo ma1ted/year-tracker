@@ -36,32 +36,33 @@
         "Urinated",
         "Vomited",
         "Cried",
-        "Consumed a substantial meal",
-        "Showered",
-        "Took perscription medication",
-        "Took recreational drugs",
-        "Drank Alcohol",
-        "Had sex",
-        "Masturbated",
         "Read quality material",
+        "Finished a podcast",
         "Creatively wrote",
         "Socialised",
         "Gamed",
+        "Showered",
+        "Ate a substantial meal",
+        "Took perscription drugs",
+        "Took recreational drugs",
+        "Drank Alcohol",
+        "Had sex",
+        "Solo sexed",
     ];
 </script>
 
 {#if formattedDate}
-    <div on:click={click} on:keypress class="absolute flex justify-center items-center w-screen h-screen backdrop-blur">
-        <div bind:this={modal} class="relative flex flex-col gap-16 w-1/3 h-2/3 bg-slate-800 rounded-lg p-4">
-            <div bind:this={closeButton} class="absolute cursor-pointer right-0 top-0 p-4">
+    <div on:click={click} on:keypress class="fixed flex justify-center items-center w-screen h-screen inset-0 backdrop-blur">
+        <div bind:this={modal} class="relative flex flex-col gap-4 w-[max(20rem,33vw)] h-3/4 bg-slate-800 border-2 border-gray-400/50 rounded-lg p-4 overflow-scroll ">
+            <div bind:this={closeButton} class="absolute cursor-pointer right-0 top-0 m-4">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
                 </svg>                  
             </div>
-            <div class="flex flex-col gap-4">
-                <h3 class="text-2xl font-bold text-white">{formattedDate}</h3>
+            <div class="flex flex-col gap-4 w-fit">
+                <h3 class="text-2xl font-bold text-white mr-10">{formattedDate}</h3>
                 {#if selectedDate}
-                    {@const colour = isToday(selectedDate) ? "red" : isPastDay(selectedDate) ? "green" : "slate"}
+                    {@const colour = isToday(selectedDate) ? "green" : isPastDay(selectedDate) ? "red" : "slate"}
                     {@const text = 
                         isYesterday(selectedDate) ? "Yesterday" :
                         isToday(selectedDate) ? "Today" :
@@ -75,25 +76,22 @@
                     </div>
                 {/if}
             </div>
+            <hr />
+            <h4 class="text-xl">On this day, I...</h4>
 
-            <div class="flex flex-col gap-8">
-                <h4>On this day, I...</h4>
-                <div class="grid grid-cols-2">
+            <div class="flex flex-col gap-4 overflow-scroll rounded p-2 pl-0">
+                <div class="grid grid-cols-2 gap-3">
                     {#each actions as action}
-                        <p class="text-sm text-white">{action}</p>
+                        <p class="text-sm text-white whitespace-nowrap">{action}</p>
                         
-                        <div class="flex flex-row gap-4">
-                            <div id="minus">
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 12h-15" />
-                                </svg>
-                            </div>
+                        <div class="flex flex-row gap-4 justify-self-end">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 12h-15" />
+                            </svg>
                             <p>0</p>
-                            <div id="plus">
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-                                </svg>
-                            </div>
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                            </svg>
                         </div>
                     {/each}
                 </div>

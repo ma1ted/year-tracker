@@ -3,7 +3,7 @@
 	import DayModal from "./daymodal.svelte";
 </script>
 
-<main class="grid place-items-center">
+<main class="grid place-items-center p-6">
 	<Calendar />
 	<DayModal />
 </main>

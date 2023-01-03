@@ -1,6 +1,6 @@
 <script lang="ts">
-	import Calendar from "./calendar.svelte";
-	import DayModal from "./daymodal.svelte";
+	import Calendar from "./components/calendar.svelte";
+	import DayModal from "./components/daymodal.svelte";
 </script>
 
 <main class="grid place-items-center p-6">

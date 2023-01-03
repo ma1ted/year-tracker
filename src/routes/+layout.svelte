@@ -3,9 +3,6 @@
 	import type { LayoutData } from './$types';
 
 	export let data: LayoutData;
-	$: console.log(data);
-
-	const GH_CLIENT = "Iv1.2a14da99fe656939";
 </script>
 
 <nav class="flex items-center justify-between px-4 w-full h-12 bg-gray-800">
@@ -13,16 +10,16 @@
 		<a href="/">Home</a>
 		<a href="/about">About</a>
 	</div>
-	{#if data.id}
+	{#if data.github}
 		{@const hours = new Date().getHours()}
 		{@const greeting = hours < 12 ? "Good morning" : hours < 17 ? "Good afternoon" : "Good evening"}
 		<div class="flex flex-row items-center gap-2">
-			<p>{greeting}, {data.name}!</p>
-			<img src={data.avatar_url} alt="github profile" class="w-8 h-8 rounded-full" />
+			<p>{greeting}, {data.github.name}!</p>
+			<img src={data.github.avatar_url} alt="github profile" class="w-8 h-8 rounded-full" />
 		</div>
 		<a href="/signout">Sign out</a>
 	{:else}
-		<a href="https://github.com/login/oauth/authorize?client_id={GH_CLIENT}">Sign in</a>
+		<a href="https://github.com/login/oauth/authorize?client_id={data.GITHUB_ID}">Sign in</a>
 	{/if} 
 </nav>
 

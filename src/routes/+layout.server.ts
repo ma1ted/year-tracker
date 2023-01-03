@@ -1,6 +1,9 @@
 import { error } from '@sveltejs/kit';
+import { GITHUB_ID } from '$env/static/private';
 
 export const load = (async ({ locals }: any) => {
+	const data: any = { GITHUB_ID };
+
 	if (locals.session) {
 		const res = await fetch("https://api.github.com/user", {
 			headers: {
@@ -9,7 +12,9 @@ export const load = (async ({ locals }: any) => {
 				"X-GitHub-Api-Version": "2022-11-28"
 			}
 		});
-		const data = await res.json();
-		return data;
+		
+		data.github = await res.json();
 	}
+
+	return data;
 });

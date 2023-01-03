@@ -1,5 +1,4 @@
 import { GITHUB_ID, GITHUB_SECRET } from "$env/static/private";
-import { error } from "@sveltejs/kit";
 
 export const handle = (async ({ event, resolve }: any) => {
 	const code = event.url.searchParams.get("code");

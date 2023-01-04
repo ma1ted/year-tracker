@@ -1,9 +1,6 @@
 <script lang="ts">
 	import "../app.css";
-	import type { LayoutData } from "./$types";
 	import { page } from "$app/stores";
-
-	$: console.info($page.url.origin);
 </script>
 
 <nav class="flex items-center justify-between px-4 w-full h-12 bg-gray-800">

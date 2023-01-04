@@ -1,63 +1,41 @@
 <script lang="ts">
-	//@ts-ignore
 	import { selectedDay } from "$lib/stores";
+	import {
+		isPastDay,
+		isYesterday,
+		isToday,
+		isTomorrow,
+		isFutureDay,
+		daysOut
+	} from "$lib/date-utils";
 
-	const isPastDay = (date: Date) => date < new Date();
-	const isYesterday = (date: Date) =>
-		date.toDateString() === new Date(new Date().setDate(new Date().getDate() - 1)).toDateString();
-	const isToday = (date: Date) => date.toDateString() === new Date().toDateString();
-	const isTomorrow = (date: Date) =>
-		date.toDateString() === new Date(new Date().setDate(new Date().getDate() + 1)).toDateString();
-	const isFutureDay = (date: Date) => date > new Date();
+	export let data: any;
+	const days = JSON.parse(data.days)
+	console.log(days)
 
-	const daysOut = (date: Date) =>
-		(isPastDay(date) ? Math.floor : Math.ceil)(
-			Math.abs(new Date().getTime() - date.getTime()) / (1000 * 60 * 60 * 24)
-		);
-
-	let selectedDate: Date,
-		formattedDate: string | null = null;
+	let selectedDate: Date, formattedDate: string | null;
 	selectedDay.subscribe((value: any) => {
 		if (!value) return;
+
 		selectedDate = new Date(new Date().getFullYear(), value.month, value.date + 1);
-		const formatter = new Intl.DateTimeFormat("en-GB", { dateStyle: "full" });
-		formattedDate = formatter.format(
+		formattedDate = new Intl.DateTimeFormat("en-GB", { dateStyle: "full" }).format(
 			new Date(new Date().getFullYear(), value.month, value.date + 1)
 		);
 	});
 
-	let modal: HTMLElement, closeButton: HTMLElement;
-	function click(e: MouseEvent) {
-		if (
-			(e.target !== modal && !modal.contains(e.target as HTMLElement)) ||
-			e.target === closeButton ||
-			closeButton.contains(e.target as HTMLElement)
-		) {
-			selectedDay.set(null);
-			formattedDate = null;
-		}
+	function closeModal() {
+		selectedDay.set(null);
+		formattedDate = null;
 	}
 
-	const actions = [
-		"Went outside",
-		"Pooped",
-		"Urinated",
-		"Vomited",
-		"Cried",
-		"Read quality material",
-		"Finished a podcast",
-		"Creatively wrote",
-		"Socialised",
-		"Gamed",
-		"Showered",
-		"Ate a substantial meal",
-		"Took perscription drugs",
-		"Took recreational drugs",
-		"Drank Alcohol",
-		"Had sex",
-		"Solo sexed"
-	];
+	let modal: HTMLElement, closeButton: HTMLElement;
+	function click(e: MouseEvent) {
+		if (!modal.contains(e.target as HTMLElement) || closeButton.contains(e.target as HTMLElement))
+			closeModal();
+	}
 </script>
+
+<svelte:window on:keydown={(e) => e.code === "Escape" && closeModal()} />
 
 {#if formattedDate}
 	<div
@@ -109,11 +87,12 @@
 
 			<div class="flex flex-col gap-4 overflow-scroll rounded p-2 pl-0">
 				<div class="grid grid-cols-2 gap-3">
-					{#each actions as action}
-						<p class="text-sm text-white whitespace-nowrap">{action}</p>
-
+					{#each data.categories as action}
+						<p class="text-sm text-white whitespace-nowrap">{action.label}</p>
 						<div class="flex flex-row gap-4 justify-self-end">
 							<svg
+								on:click={() => action.value > 0 && action.value--}
+								on:keypress
 								xmlns="http://www.w3.org/2000/svg"
 								fill="none"
 								viewBox="0 0 24 24"
@@ -123,8 +102,10 @@
 							>
 								<path stroke-linecap="round" stroke-linejoin="round" d="M19.5 12h-15" />
 							</svg>
-							<p>0</p>
+							<p class="select-none">{action.value}</p>
 							<svg
+								on:click={() => action.value++}
+								on:keypress
 								xmlns="http://www.w3.org/2000/svg"
 								fill="none"
 								viewBox="0 0 24 24"

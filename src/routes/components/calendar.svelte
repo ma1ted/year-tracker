@@ -1,17 +1,40 @@
 <script lang="ts">
 	import { onMount } from "svelte";
-	//@ts-ignore
 	import { selectedDay } from "$lib/stores";
+	import { isPastDay, isToday, daysInMonth } from "$lib/date-utils";
+
+	import { page } from "$app/stores";
+	const days = $page.data.days;
+
+	function patch() {
+		fetch($page.url.origin + "/api/day", {
+			method: "PATCH",
+			headers: {
+				"Content-Type": "application/json",
+				Authorization: "GitHub " + $page.data.session?.access_token
+			},
+			body: JSON.stringify({
+				access_token: "test token!"
+			})
+		});
+	}
+
+	function getActivityValues(day: number, month: number) {
+		fetch($page.url.origin + "/api/day", {
+			method: "PATCH",
+			headers: {
+				"Content-Type": "application/json",
+				Authorization: "GitHub " + $page.data.session?.access_token
+			},
+			body: JSON.stringify({ day, month })
+		});
+	}
 
 	let locale: string, formatter: Intl.DateTimeFormat;
 	onMount(() => {
 		locale = window.navigator.languages ? window.navigator.languages[0] : window.navigator.language;
 		formatter = new Intl.DateTimeFormat(locale, { month: "short" });
 	});
-
-	const isPastDay = (date: Date) => date < new Date();
-	const isToday = (date: Date) => date.toDateString() === new Date().toDateString();
-	const daysInMonth = (month: number) => new Date(new Date().getFullYear(), month + 1, 0).getDate();
 
 	function click(e: MouseEvent) {
 		selectedDay.set({

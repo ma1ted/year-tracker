@@ -16,7 +16,7 @@ export const GET = (async ({ request, locals }: any) => {
 	//#region Date validation
 
 	// Validate day and month.
-	const date = new Date(new Date().getFullYear(), dayInfo.month - 1, dayInfo.day);
+	const date = new Date(new Date().getFullYear(), month - 1, day);
 	if (date.getMonth() !== month - 1 || date.getDate() !== day) {
 		return new Response("Invalid date provided", { status: 400 });
 	}

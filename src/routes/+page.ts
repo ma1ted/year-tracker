@@ -6,9 +6,10 @@ export const load = (async ({ fetch, parent }) => {
 	const token = await parent();
 	if (!token.session) return { days: [], categories };
 
-	const days = fetch("/api/days", { headers: { Authorization: "GitHub " + token.session.access_token } }).then(
+	const days = await fetch("/api/days", { headers: { Authorization: "GitHub " + token.session.access_token } }).then(
 		(res) => res.json()
 	);
+	console.info(days)
 
 	return { days, categories };
 }) satisfies PageLoad;

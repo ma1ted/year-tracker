@@ -2,9 +2,12 @@
 	import { onMount } from "svelte";
 	import { selectedDay } from "$lib/stores";
 	import { isPastDay, isToday, daysInMonth } from "$lib/date-utils";
+	import DayModal from "./daymodal.svelte";
 
 	import { page } from "$app/stores";
 	const days = $page.data.days;
+
+	export let data: any;
 
 	function patch() {
 		fetch($page.url.origin + "/api/day", {
@@ -73,6 +76,10 @@
 		</div>
 	{/each}
 </div>
+
+{#if $selectedDay}
+	<DayModal bind:data />
+{/if}
 
 <style>
 	:root {

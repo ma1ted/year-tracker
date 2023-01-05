@@ -1,6 +1,5 @@
 import type { Handle } from "@sveltejs/kit";
 import { GITHUB_ID, GITHUB_SECRET } from "$env/static/private";
-import { getDayInfo, initialiseUser } from "$lib/db";
 
 export const handle = (async ({ event, resolve }: any) => {
 	//#region Transform a GitHub code into an access token.
@@ -45,6 +44,7 @@ export const handle = (async ({ event, resolve }: any) => {
 	//#endregion
 
 	//#region Create a user on the database if they do not already exist.
+
 	if (event.url.pathname.startsWith("/api/days")) {
 		const token = event.request.headers.get("Authorization")
 
@@ -53,7 +53,6 @@ export const handle = (async ({ event, resolve }: any) => {
 		const tokenSplit = token.split(" ");
 		if (tokenSplit.length !== 2) return new Response("Invalid token provided", { status: 401 });
 
-		let id: string;
 		switch (tokenSplit[0]) {
 			case "GitHub":
 				const github = await fetch("https://api.github.com/user", {
@@ -66,17 +65,13 @@ export const handle = (async ({ event, resolve }: any) => {
 
 				if (!github.id) return new Response("Invalid token provided", { status: 401 });
 
-				id = "gh-" + github.id;
+				event.locals.userId = "gh-" + github.id;
 
 				break;
 
 			default:
 				return new Response("Invalid token provider prepended to authorization token", { status: 400 });
 		}
-
-		const dayInfo = await getDayInfo(id).then((res) => res);
-		if (dayInfo.length === 0) initialiseUser(id);
-		event.locals.userId = id;
 	}
 
 	//#endregion

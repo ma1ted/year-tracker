@@ -2,9 +2,44 @@ import type { RequestHandler, error } from "@sveltejs/kit";
 import { getDayInfo } from "$lib/db";
 
 export const GET = (async ({ request, locals }: any) => {
-	const token = request.headers.get("Authorization");
+	const userId = locals.userId;
+	
+	// Idk why request.url.searchParams doesn't exist!
+	const url = new URL(request.url);
+	const month = Number(url.searchParams.get("month"));
+	const day = Number(url.searchParams.get("day"));
 
-	const dayInfo = await getDayInfo(locals.userId).then((res) => res[0].dayinfo);
+	if (!userId) return new Response("No token in the <provider>-<token> format was found in the locals", { status: 401 })
+	if (!month) return new Response("No month URL parameter found", { status: 400 });
+	if (!day) return new Response("No day URL parameter found", { status: 400 });
+
+	//#region Date validation
+
+	// Validate day and month.
+	const date = new Date(new Date().getFullYear(), dayInfo.month - 1, dayInfo.day);
+	if (date.getMonth() !== month - 1 || date.getDate() !== day) {
+		return new Response("Invalid date provided", { status: 400 });
+	}
+
+	// Make sure the day is not in the future.
+	// Allow 1 day of leeway for timezone differences.
+	if (date > new Date(new Date().setDate(new Date().getDate() + 1))) {
+		return new Response("You can not edit a day in the future", { status: 400 });
+	}
+
+	// Make sure the date is this year.
+	if (date.getFullYear() !== new Date().getFullYear()) {
+		return new Response("You can not edit a day from a previous year", { status: 400 });
+	}
+
+	// Make sure the date is not more than 7 days ago.
+	if (date < new Date(new Date().setDate(new Date().getDate() - 7))) {
+		return new Response("You can not edit a day more than 7 days ago", { status: 400 });
+	}
+
+	//#endregion
+
+	const dayInfo = await getDayInfo(userId, month, day).then((res: any) => res[0]);
 
 	return new Response(JSON.stringify(dayInfo));
 }) satisfies RequestHandler;

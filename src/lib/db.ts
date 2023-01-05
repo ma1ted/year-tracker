@@ -13,9 +13,18 @@ export const setDayInfo = async (userId: string, dayInfo: string) =>
 export const getDayInfo = async (userId: string) =>
 	await sql`SELECT dayInfo FROM days WHERE id = ${userId}`;
 
-export const initialiseUser = async (userId: string) =>{
+export const initialiseUser = async (userId: string) => {
     // Construct a new dayInfo object consisting of an array of activity ids and values.
-    const dayInfo = JSON.stringify(actions.map((v: any) => ( {id: v.id, value: 0} )));
+    const dayInfo = actions.map((v: any) => ( {id: v.id, value: 0} ));
 
-    await sql`INSERT INTO days (id, dayInfo) VALUES (${userId}, ${newInfo})`;
+    const newInfo: any = {};
+    // Loop over months
+    for (let month = 0; month < 12; month++) {
+        // Loop over days
+        for (let day = 0; day < daysInMonth(month); day++) {
+            newInfo[`${month}-${day}`] = dayInfo;
+        }
+    }
+
+    await sql`INSERT INTO days (id, dayInfo) VALUES (${userId}, ${JSON.stringify(newInfo)})`;
 }

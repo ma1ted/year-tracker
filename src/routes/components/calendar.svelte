@@ -1,50 +1,31 @@
 <script lang="ts">
 	import { onMount } from "svelte";
 	import { selectedDay } from "$lib/stores";
-	import { isPastDay, isToday, daysInMonth } from "$lib/date-utils";
+	import { isFutureDay, isPastDay, isToday, daysInMonth } from "$lib/date-utils";
 	import DayModal from "./daymodal.svelte";
 
-	import { page } from "$app/stores";
-	const days = $page.data.days;
+	// import { page } from "$app/stores";
 
 	export let data: any;
 
-	function patch() {
-		fetch($page.url.origin + "/api/day", {
-			method: "PATCH",
-			headers: {
-				"Content-Type": "application/json",
-				Authorization: "GitHub " + $page.data.session?.access_token
-			},
-			body: JSON.stringify({
-				access_token: "test token!"
-			})
-		});
-	}
-
-	function getActivityValues(day: number, month: number) {
-		fetch($page.url.origin + "/api/day", {
-			method: "PATCH",
-			headers: {
-				"Content-Type": "application/json",
-				Authorization: "GitHub " + $page.data.session?.access_token
-			},
-			body: JSON.stringify({ day, month })
-		});
-	}
+	// function patch() {
+	// 	fetch($page.url.origin + "/api/day", {
+	// 		method: "PATCH",
+	// 		headers: {
+	// 			"Content-Type": "application/json",
+	// 			Authorization: "GitHub " + $page.data.session?.access_token
+	// 		},
+	// 		body: JSON.stringify({
+	// 			access_token: "test token!"
+	// 		})
+	// 	});
+	// }
 
 	let locale: string, formatter: Intl.DateTimeFormat;
 	onMount(() => {
 		locale = window.navigator.languages ? window.navigator.languages[0] : window.navigator.language;
 		formatter = new Intl.DateTimeFormat(locale, { month: "short" });
 	});
-
-	function click(e: MouseEvent) {
-		selectedDay.set({
-			month: Number((e.target as HTMLElement).dataset.month),
-			date: Number((e.target as HTMLElement).dataset.date)
-		});
-	}
 </script>
 
 <div class="grid grid-cols-[repeat(13,1fr)] h-full w-[min(100%,30rem)]">
@@ -66,11 +47,15 @@
 					? "bg-red-500"
 					: "bg-slate-500"}
 				<div
-					on:click={click}
+					on:click={isPastDay(curr)
+						? (e) => selectedDay.set({ month: monthIdx, date: dayIdx })
+						: null}
 					on:keypress
 					data-month={monthIdx}
 					data-date={dayIdx}
-					class="self-center w-4 h-4 rounded-full cursor-pointer {colour}"
+					class="self-center w-4 h-4 rounded-full {isPastDay(curr)
+						? 'cursor-pointer'
+						: ''} {colour}"
 				/>
 			{/each}
 		</div>

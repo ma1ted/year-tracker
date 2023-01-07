@@ -1,5 +1,5 @@
 import type { RequestHandler, RequestEvent } from "@sveltejs/kit";
-import { actions } from "$lib/actions"
+import { actions } from "$lib/actions";
 
 // :trol:
 export const GET = (async ({ url }: RequestEvent) =>

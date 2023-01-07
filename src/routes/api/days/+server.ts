@@ -1,23 +1,32 @@
 import type { RequestHandler, error } from "@sveltejs/kit";
-import { getDayInfo } from "$lib/db";
+import { getDayInfo, initialiseUser } from "$lib/db";
+import { actions } from "$lib/actions";
 
 export const GET = (async ({ request, locals }: any) => {
 	const userId = locals.userId;
-	
+
 	// Idk why request.url.searchParams doesn't exist!
 	const url = new URL(request.url);
-	const month = Number(url.searchParams.get("month"));
+	let month = Number(url.searchParams.get("month"));
 	const day = Number(url.searchParams.get("day"));
 
-	if (!userId) return new Response("No token in the <provider>-<token> format was found in the locals", { status: 401 })
+	if (month === 0) return new Response("Days and months should be 1-indexed.", { status: 400 });
+
+	if (!userId)
+		return new Response("No token in the <provider>-<token> format was found in the locals", {
+			status: 401
+		});
 	if (!month) return new Response("No month URL parameter found", { status: 400 });
 	if (!day) return new Response("No day URL parameter found", { status: 400 });
+
+	// Convert month to 0-indexed for JavaScript's Date class`.
+	month -= 1;
 
 	//#region Date validation
 
 	// Validate day and month.
-	const date = new Date(new Date().getFullYear(), month - 1, day);
-	if (date.getMonth() !== month - 1 || date.getDate() !== day) {
+	const date = new Date(new Date().getFullYear(), month, day);
+	if (date.getMonth() !== month || date.getDate() !== day) {
 		return new Response("Invalid date provided", { status: 400 });
 	}
 
@@ -40,16 +49,21 @@ export const GET = (async ({ request, locals }: any) => {
 	//#endregion
 
 	const dayInfo = await getDayInfo(userId, month, day).then((res: any) => res[0]);
+	if (!dayInfo) {
+		// Initialise the user's day.
+		await initialiseUser(userId, month, day);
 
-	return new Response(JSON.stringify(dayInfo));
+		// Generate a zeroed day.
+		return new Response(`{${actions.map((action) => `"${action.id}": 0`).join(",")}}}`);
+	} else {
+		return new Response(JSON.stringify(dayInfo));
+	}
 }) satisfies RequestHandler;
 
 export const PATCH = (async ({ request, locals }: any) => {
 	const body = await request.json();
 
 	const token = request.headers.get("Authorization");
-
-	// console.log(token);
 
 	if (!token) {
 		return new Response("No token provided", { status: 401 });
@@ -93,8 +107,8 @@ export const PATCH = (async ({ request, locals }: any) => {
 			//#region Date validation
 
 			// Validate day and month.
-			const date = new Date(new Date().getFullYear(), dayInfo.month - 1, dayInfo.day);
-			if (date.getMonth() !== dayInfo.month - 1 || date.getDate() !== dayInfo.day) {
+			const date = new Date(new Date().getFullYear(), dayInfo.month, dayInfo.day);
+			if (date.getMonth() !== dayInfo.month || date.getDate() !== dayInfo.day) {
 				return new Response("Invalid date provided", { status: 400 });
 			}
 

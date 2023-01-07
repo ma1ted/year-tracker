@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { onMount } from "svelte";
 	import { selectedDay } from "$lib/stores";
 	import {
 		isPastDay,
@@ -8,12 +9,16 @@
 		isFutureDay,
 		daysOut
 	} from "$lib/date-utils";
+	import { page } from "$app/stores";
 
 	export let data: any;
-	// $: console.log("this is data", data);
 
-	// const dayInfo = await getDayInfo(id).then((res) => res);
-	// if (dayInfo.length === 0) initialiseUser(id);
+	const daysURL = new URL("api/days", $page.url.origin);
+	daysURL.searchParams.append("month", (parseInt($selectedDay!.month) + 1).toString());
+	daysURL.searchParams.append("day", (parseInt($selectedDay!.date) + 1).toString());
+	$: dayInfo = fetch(daysURL, {
+		headers: { Authorization: "GitHub " + data.session.access_token }
+	}).then((res: any) => res.text());
 
 	let selectedDate: Date, formattedDate: string | null;
 	selectedDay.subscribe((value: any) => {
@@ -85,36 +90,43 @@
 
 		<div class="flex flex-col gap-4 overflow-scroll rounded p-2 pl-0">
 			<div class="grid grid-cols-2 gap-3">
-				{#each data.categories as action}
-					<p class="text-sm text-white whitespace-nowrap">{action.label}</p>
-					<div class="flex flex-row gap-4 justify-self-end">
-						<svg
-							on:click={() => action.value > 0 && action.value--}
-							on:keypress
-							xmlns="http://www.w3.org/2000/svg"
-							fill="none"
-							viewBox="0 0 24 24"
-							stroke-width="1.5"
-							stroke="currentColor"
-							class="w-6 h-6"
-						>
-							<path stroke-linecap="round" stroke-linejoin="round" d="M19.5 12h-15" />
-						</svg>
-						<p class="select-none">{action.value}</p>
-						<svg
-							on:click={() => action.value++}
-							on:keypress
-							xmlns="http://www.w3.org/2000/svg"
-							fill="none"
-							viewBox="0 0 24 24"
-							stroke-width="1.5"
-							stroke="currentColor"
-							class="w-6 h-6"
-						>
-							<path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-						</svg>
-					</div>
-				{/each}
+				{#await dayInfo}
+					<p class="text-sm text-white whitespace-nowrap">Loading...</p>
+				{:then data}
+					{@const actions = JSON.parse(data)}
+					{#each Object.entries(actions) as [actionKey, actionValue]}
+						<p class="text-sm text-white whitespace-nowrap">{actionKey}</p>
+						<div class="flex flex-row gap-4 justify-self-end">
+							<svg
+								on:click={() => actionValue > 0 && action.value--}
+								on:keypress
+								xmlns="http://www.w3.org/2000/svg"
+								fill="none"
+								viewBox="0 0 24 24"
+								stroke-width="1.5"
+								stroke="currentColor"
+								class="w-6 h-6"
+							>
+								<path stroke-linecap="round" stroke-linejoin="round" d="M19.5 12h-15" />
+							</svg>
+							<p class="select-none">{action.value}</p>
+							<svg
+								on:click={() => action.value++}
+								on:keypress
+								xmlns="http://www.w3.org/2000/svg"
+								fill="none"
+								viewBox="0 0 24 24"
+								stroke-width="1.5"
+								stroke="currentColor"
+								class="w-6 h-6"
+							>
+								<path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+							</svg>
+						</div>
+					{/each}
+				{:catch error}
+					<p class="text-sm text-red-500 whitespace-nowrap">{error}</p>
+				{/await}
 			</div>
 		</div>
 	</div>

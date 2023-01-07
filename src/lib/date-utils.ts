@@ -28,7 +28,8 @@ function daysOut(date: Date) {
 	);
 }
 
-function daysInMonth(month: number) { // 0-indexed month number
+function daysInMonth(month: number) {
+	// 0-indexed month number
 	return new Date(new Date().getFullYear(), month + 1, 0).getDate();
 }
 

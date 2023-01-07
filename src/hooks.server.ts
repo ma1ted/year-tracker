@@ -46,7 +46,7 @@ export const handle = (async ({ event, resolve }: any) => {
 	//#region Create a user on the database if they do not already exist.
 
 	if (event.url.pathname.startsWith("/api/days")) {
-		const token = event.request.headers.get("Authorization")
+		const token = event.request.headers.get("Authorization");
 
 		if (!token) return new Response("No token provided", { status: 400 });
 
@@ -70,7 +70,9 @@ export const handle = (async ({ event, resolve }: any) => {
 				break;
 
 			default:
-				return new Response("Invalid token provider prepended to authorization token", { status: 400 });
+				return new Response("Invalid token provider prepended to authorization token", {
+					status: 400
+				});
 		}
 	}
 

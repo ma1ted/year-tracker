@@ -8,7 +8,7 @@ export const actions = [
 	{ label: "Finished a podcast", id: "pod" },
 	{ label: "Creatively wrote", id: "write" },
 	{ label: "Socialised", id: "social" },
-	{ label: "Asked someone out", id: "askout"},
+	{ label: "Asked someone out", id: "askout" },
 	{ label: "Been asked out", id: "askedout" },
 	{ label: "Been on a romantic date", id: "date" },
 	{ label: "Gamed", id: "game" },
